@@ -75,12 +75,13 @@ func SubServer(ws *websocket.Conn) {
 	if msg.Type == "connect" {
 		fmt.Println("connect") // future implementation: possible authorisation for private channels
 	} else if msg.Type == "subscribe"  {
-		var channelExists bool = true //DoesChannelExist(redisConn, msg.Channel)
+		var channelExists bool = DoesChannelExist(redisConn, msg.Channel)
 		fmt.Println("channel exist check", channelExists)
 		if channelExists == true {
 			chann := make(chan string,5)
 			psc := redis.PubSubConn{Conn: redisConn}
 			psc.Subscribe(msg.Channel)
+			defer psc.Close()
 			go SubscriberListener(psc, chann)
 			SubscriberReporter(ws, psc, chann)
 			return	
@@ -91,7 +92,7 @@ func SubServer(ws *websocket.Conn) {
 		msg.Data = "Corrupt message"
 		websocket.JSON.Send(ws, msg)
 	}
-	
+	return	
 	
 }
 
@@ -119,6 +120,7 @@ func SubscriberListener(conn redis.PubSubConn, chann chan string)  {
             			if n.Count == 0 {
 					fmt.Println(conn.Unsubscribe())
 					fmt.Println("Unsubscribed")
+					return
             			}
 			case error:
 				fmt.Printf("error: %v\n", n)

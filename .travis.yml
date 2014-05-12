@@ -1,0 +1,8 @@
+language: go
+
+install:
+  - go get code.google.com/p/go.net/websocket
+  - go get github.com/garyburd/redigo/redis
+
+services:
+  - redis-server

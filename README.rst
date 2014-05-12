@@ -1,4 +1,5 @@
-# GOrtechs
+GOrtechs
+========
 
 GOrtechs is a pubsub websockets server written in Go, using websockets and Redis.
 
